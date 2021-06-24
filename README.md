@@ -9,57 +9,83 @@ In this project, you'll be tasked to do the following:
 - Setup an Azure Automation account and create a RunBook to automate the resolution of performance issues
 - Create alerts to trigger auto-scaling on an AKS cluster and trigger a RunBook to execute
 
-## Getting Started
+# Part 1. Getting Started
 
-### Prerequisites
-
+### Prerequisites 
 1. [Create a free Azure Account](https://azure.microsoft.com/en-us/free/)
 2. [Create a free Azure DevOps account](https://azure.microsoft.com/en-us/pricing/details/devops/azure-devops-services/) (Click **Start Free** under **Azure Pipelines**)
 3. [VS Code or your preferred editor](https://code.visualstudio.com/Download) Install the VS Code extensions for Python (optional)
 4. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
 
-### Dependencies
-
+### Dependencies to run the application locally
 - [Python](https://www.python.org/downloads/)
-- [Flask](https://flask.palletsprojects.com/en/1.1.x/installation/#installation)
-- [Redis—Non-Windows Download](https://redis.io/download)
-- [Redis—Windows Download](https://riptutorial.com/redis/example/29962/installing-and-running-redis-server-on-windows)
+- Redis server (Instructions are available below). 
 
-### Required Python Libraries:
+### Required Python Packages
+All these packages below are mentioned in the *requirements.txt* that you can use during the **Local Environment Setup**. 
+```bash
+Flask==1.1.2
+opencensus==0.7.13
+opencensus-ext-azure==1.0.4
+opencensus-ext-flask==0.7.3
+redis==3.5.3
+```
 
-- `redis`
-- `opencensus-ext-azure`
-- `opencensus-ext-flask`
-- `flask`
+---
 
-A requirements.txt has been provided if you want to first run the application in a local environment.
+# Part 2. Local Environment Setup (Optional)
 
-**NOTE**: The `app.run()` in `main.py` is set for your local environment. Use `app.run(host='0.0.0.0', threaded=True, debug=True)` when deploying to a VM Scale Set.
+If you want to run the application on localhost, follow the next steps; otherwise, you can skip to the **Azure Environment Setup** section next. 
 
-## Local Environment Setup (Optional)
 
-If you want to run the application on localhost, follow the next steps; otherwise, you can skip to [Azure Environment Setup](#azure-environment-setup).
+1. **Install Redis** - Download and install Redis server for your operating system: [Linux](https://redis.io/download), [MacOS](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298), or [Windows](https://riptutorial.com/redis/example/29962/installing-and-running-redis-server-on-windows)
 
-### Install Redis
+2. **Start Redis** - Start and verify the Redis server:
+```bash
+# Mac
+redis-server /usr/local/etc/redis.conf
+# Linux
+redis-server
+# Windows - Navigate to the Redis folder, and run
+redis-server.exe
+redis-cli.exe
+# Ping your Redis server to verify if it is running. It will return "PONG"
+redis-cli ping
+```
 
-1. Download and install `redis-server` for your operating system:
+3. **Create a Virtual Environment** (Optional) - It's your choice to work in a virtual environment. For this, you must have the [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html#via-pip) installed. Then, create and activate a virtual environment:
+```bash
+# Navigate to the azure-vote/ folder 
+cd azure-vote/
+```
+```bash
+# Mac/Linux
+python3 -m venv .venv 
+source .venv/bin/activate
+# Windows on Powershell or GitBash terminal
+py -3 -m venv .venv
+.venv\Scripts\activate
+```
 
-- [Redis Quick Start](https://redis.io/topics/quickstart)
-- [Non-Windows](https://redis.io/download)
-- [Windows](https://riptutorial.com/redis/example/29962/installing-and-running-redis-server-on-windows)
+4. **Dependencies** - Install dependencies from *requirements.txt*:
+```bash
+# Run this command from the parent directory where you have the requirements.txt file
+pip install -r requirements.txt
+``` 
 
-2. Start `redis-server`
+5. Run the application:
+```bash
+python main.py
+```
 
-### Create a Virtual Environment
+>**NOTE**: The statement `app.run()` in `/azure-vote/main.py` file is currently set for your local environment. Replace it with the following statement when deploying the application to a VM Scale Set:
+>```py
+>app.run(host='0.0.0.0', threaded=True, debug=True)
+>```
 
-1. Create a virtual environment inside the `azure-vote` folder
-2. Activate the environment
-3. Install dependencies from `requirements.txt`
-4. Run `main.py`
+---
 
-**NOTE**: The `app.run()` in `main.py` is set for your local environment. Use `app.run(host='0.0.0.0', threaded=True, debug=True)` when deploying to a VM Scale Set.
-
-## Azure Environment Setup
+# Part 3. Azure Environment Setup
 
 ### Azure VM Scale Set
 
