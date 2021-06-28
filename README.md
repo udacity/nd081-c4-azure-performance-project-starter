@@ -12,11 +12,12 @@ In this project, you'll be tasked to do the following:
 ### Directory Structure
 
 ```bash
-├── azure-pipelines-instructions.md  # Deprecated
-├── azure-pipelines.yaml             # Deprecated
+├── azure-vote-all-in-one-redis.yaml # This file is used to 
+├── docker-compose.yaml              # Used to dreate Docker images, and run the application locally using Docker
 ├── azure-vote                       # Frontend Flask applicattion
 │   ├── config_file.cfg              # Contains key-values for UI Configurations
 │   ├── main.py                      # You may need to add a few lines of code here to enable App Insights
+│   ├── Dockerfile                   # This file is used by docker-compose.yaml. It pulls a base image, installs packages
 │   └── templates
 │       └── index.html               
 ├── azure-vote.yaml              # This YAML file is used while deploying the application to the AKS. It contains the name of the frontend and backend images present in the ACR
