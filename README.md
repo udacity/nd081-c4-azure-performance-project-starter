@@ -12,8 +12,8 @@ In this project, you'll be tasked to do the following:
 ### Directory Structure
 
 ```bash
-├── azure-vote-all-in-one-redis.yaml # This file is used to 
-├── docker-compose.yaml              # Used to dreate Docker images, and run the application locally using Docker
+├── azure-vote-all-in-one-redis.yaml # This file is used to deploy the application to AKS
+├── docker-compose.yaml              # Used to create Docker images, and run the application locally using multiple Docker containers
 ├── azure-vote                       # Frontend Flask applicattion
 │   ├── config_file.cfg              # Contains key-values for UI Configurations
 │   ├── main.py                      # You may need to add a few lines of code here to enable App Insights
