@@ -264,7 +264,7 @@ The script above will take a few minutes to create VMSS and related resources. O
       docker exec -it azure-vote-front bash
       ls
       # Check if the Redis server is running
-      docker exec -it azure-vote-front bash
+      docker exec -it azure-vote-back bash
       redis-cli ping
       ```
 
@@ -300,6 +300,8 @@ The script above will take a few minutes to create VMSS and related resources. O
       docker push myacr202106.azurecr.io/azure-vote-front:v1
       # Verify if you image is up in the cloud.
       az acr repository list --name myacr202106 --output table
+      # Associate the AKS cluster with the ACR repository
+      az aks update -n udacity-cluster -g acdnd-c4-project --attach-acr myacr202106
       ```
 
 7. Now, deploy the images to the AKS cluster:
@@ -314,6 +316,10 @@ The script above will take a few minutes to create VMSS and related resources. O
       kubectl get service azure-vote-front --watch
       # You can also verify that the service is running like this
       kubectl get service
+      # Check the status of each node
+      kubectl get pods
+      # In case you wish to change the image in ACR, you can redeploy using:
+      kubectl set image deployment azure-vote-front azure-vote-front=myacr202106.azurecr.io/azure-vote-front:v1      
       # Push your changes so far to the Github repo, preferably in the Deploy_to_AKS branch
       ```
 
