@@ -250,6 +250,7 @@ The script above will take a few minutes to create VMSS and related resources. O
       cd ..
       # Create images, and run the application locally using Docker.
       docker-compose up -d --build
+      # View the application at http://localhost:8080/
       # You will see two new images - "azure-vote-front:v1" and "mcr.microsoft.com/oss/bitnami/redis:6.0.8" (built from "redis:6.0.8")
       docker images
       # Correspondingly, you will see two running containers - "azure-vote-front" and "azure-vote-back" 
