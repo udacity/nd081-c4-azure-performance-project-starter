@@ -23,41 +23,47 @@ from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
+from applicationinsights import TelemetryClient
+
+
 stats = stats_module.stats
 view_manager = stats.view_manager
 
 # Logging
-# 66f3a1bc-ec75-443d-8de1-248ff59838f1
+const connectionStringInsights = 'InstrumentationKey=66f3a1bc-ec75-443d-8de1-248ff59838f1;IngestionEndpoint=https://eastus-1.in.applicationinsights.azure.com/'
 
 config_integration.trace_integrations(['logging'])
 config_integration.trace_integrations(['requests'])
 # Standard Logging
 logger = logging.getLogger(__name__)
-handler = AzureLogHandler(connection_string='InstrumentationKey=66f3a1bc-ec75-443d-8de1-248ff59838f1')
+handler = AzureLogHandler(connection_string=connectionStringInsights)
 handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
 # Logging custom Events 
-logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=66f3a1bc-ec75-443d-8de1-248ff59838f1'))
+logger.addHandler(AzureEventHandler(connection_string=connectionStringInsights))
 # Set the logging level
 logger.setLevel(logging.INFO)
 
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
 enable_standard_metrics=True,
-connection_string='InstrumentationKey=66f3a1bc-ec75-443d-8de1-248ff59838f1')
+connection_string=connectionStringInsights)
 view_manager.register_exporter(exporter)
 
 # Tracing
 tracer = Tracer(
  exporter=AzureExporter(
-     connection_string='InstrumentationKey=66f3a1bc-ec75-443d-8de1-248ff59838f1'),
+     connection_string=connectionStringInsights),
  sampler=ProbabilitySampler(1.0),
 )
+
+tracer = tracer = TelemetryClient(connectionStringInsights)
+
 app = Flask(__name__)
 
 # Requests
 middleware = FlaskMiddleware(
- app, exporter=AzureExporter(connection_string="InstrumentationKey=66f3a1bc-ec75-443d-8de1-248ff59838f1"),
+ app, exporter=AzureExporter(connection_string=connectionStringInsights),
  sampler=ProbabilitySampler(rate=1.0)
 )
 
@@ -82,6 +88,21 @@ else:
 # Redis Connection
 r = redis.Redis()
 
+# Redis configurations
+redis_server = os.environ['REDIS']
+
+   # Redis Connection to another container
+try:
+    if "REDIS_PWD" in os.environ:
+        r = redis.StrictRedis(host=redis_server,
+                        port=6379,
+                        password=os.environ['REDIS_PWD'])
+    else:
+        r = redis.Redis(redis_server)
+    r.ping()
+except redis.ConnectionError:
+    exit('Failed to connect to Redis, terminating.')
+
 # Change title to host name to demo NLB
 if app.config['SHOWHOST'] == "true":
     title = socket.gethostname()
@@ -99,11 +120,16 @@ def index():
         vote1 = r.get(button1).decode('utf-8')
         with tracer.span(name="Cats Vote") as span:
             print("Cats Vote")
+        tracer.track_event('Cat votes')
+        tracer.flush()
 
         vote2 = r.get(button2).decode('utf-8')
         # TODO: use tracer object to trace dog vote
         with tracer.span(name="Dogs Vote") as span:
             print("Dogs Vote")
+        tracer.track_event('Dog votes')
+        tracer.flush()
+
 
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
