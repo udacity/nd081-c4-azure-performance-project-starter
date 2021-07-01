@@ -4,3 +4,5 @@ opencensus-ext-flask==0.7.3
 redis==3.5.3
 opencensus==0.7.13
 opencensus-ext-logging==0.1.0
+opencensus-ext-requests
+
