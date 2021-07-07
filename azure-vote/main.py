@@ -30,7 +30,7 @@ stats = stats_module.stats
 view_manager = stats.view_manager
 
 # Logging
-const connectionStringInsights = 'InstrumentationKey=66f3a1bc-ec75-443d-8de1-248ff59838f1;IngestionEndpoint=https://eastus-1.in.applicationinsights.azure.com/'
+connectionStringInsights = 'InstrumentationKey=66f3a1bc-ec75-443d-8de1-248ff59838f1;IngestionEndpoint=https://eastus-1.in.applicationinsights.azure.com/'
 
 config_integration.trace_integrations(['logging'])
 config_integration.trace_integrations(['requests'])
