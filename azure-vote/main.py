@@ -9,7 +9,7 @@ from datetime import datetime
 
 # App Insights
 
-from opencensus.ext.azure.log_exporter import AzureLogHandler
+from opencensus.ext.azure.log_exporter import AzureLogHandler, AzureEventHandler
 from opencensus.ext.azure import metrics_exporter
 from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.trace.samplers import ProbabilitySampler
@@ -18,23 +18,27 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
 app = Flask(__name__)
 
+InstrumentationKey = 'InstrumentationKey=72828773-edc8-4f60-92d4-9242fd10544b;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
   enable_standard_metrics=True,
-  connection_string='InstrumentationKey=72828773-edc8-4f60-92d4-9242fd10544b;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/')
+  connection_string=InstrumentationKey)
 
 # Tracing
 tracer = Tracer(
     exporter=AzureExporter(
-    connection_string='InstrumentationKey=72828773-edc8-4f60-92d4-9242fd10544b;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'),
+    connection_string=InstrumentationKey),
     sampler=ProbabilitySampler(1.0),
 )
 
 
 # Logging
 logger = logging.getLogger(__name__)
-logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=72828773-edc8-4f60-92d4-9242fd10544b;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'))
-logger.setLevel(logging.INFO)
+logHandler = AzureLogHandler(connection_string=InstrumentationKey)
+eventHandler = AzureEventHandler(connection_string=InstrumentationKey)
+logger.addHandler(logHandler)
+logger.addHandler(eventHandler)
+
 
 
 
@@ -43,7 +47,7 @@ app = Flask(__name__)
 # Requests
 middleware = FlaskMiddleware(
     app,
-    exporter=AzureExporter(connection_string='InstrumentationKey=72828773-edc8-4f60-92d4-9242fd10544b;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'),
+    exporter=AzureExporter(connection_string=InstrumentationKey),
     sampler=ProbabilitySampler(rate=1.0),
 )
 
@@ -105,12 +109,12 @@ def index():
             vote1 = r.get(button1).decode('utf-8')
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
 
-            logger.info('Cats', extra=properties)
+            logger.warning('Cats', extra=properties)
 
             vote2 = r.get(button2).decode('utf-8')
             properties = {'custom_dimensions': {'Dogs Vote': vote2}}
 
-            logger.info('Dogs', extra=properties)
+            logger.warning('Dogs', extra=properties)
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
