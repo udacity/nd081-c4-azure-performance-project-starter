@@ -35,7 +35,6 @@ tracer = Tracer(
 logger = logging.getLogger(__name__)
 logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=72828773-edc8-4f60-92d4-9242fd10544b;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'))
 logger.setLevel(logging.INFO)
-logger.info('Cats')
 
 
 
@@ -130,6 +129,6 @@ def index():
 
 if __name__ == "__main__":
     # comment line below when deploying to VMSS
-    app.run() # local
+    # app.run() # local
     # uncomment the line below before deployment to VMSS
-    # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    app.run(host='0.0.0.0', threaded=True, debug=True) # remote
