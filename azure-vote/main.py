@@ -8,21 +8,48 @@ import logging
 from datetime import datetime
 
 # App Insights
-# TODO: Import required libraries for App Insights
 
-# Logging
-logger = # TODO: Setup logger
+from opencensus.ext.azure.log_exporter import AzureLogHandler, AzureEventHandler
+from opencensus.ext.azure import metrics_exporter
+from opencensus.ext.azure.trace_exporter import AzureExporter
+from opencensus.trace.samplers import ProbabilitySampler
+from opencensus.trace.tracer import Tracer
+from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
+app = Flask(__name__)
+
+InstrumentationKey = 'InstrumentationKey=72828773-edc8-4f60-92d4-9242fd10544b;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'
 # Metrics
-exporter = # TODO: Setup exporter
+exporter = metrics_exporter.new_metrics_exporter(
+  enable_standard_metrics=True,
+  connection_string=InstrumentationKey)
 
 # Tracing
-tracer = # TODO: Setup tracer
+tracer = Tracer(
+    exporter=AzureExporter(
+    connection_string=InstrumentationKey),
+    sampler=ProbabilitySampler(1.0),
+)
+
+
+# Logging
+logger = logging.getLogger(__name__)
+logHandler = AzureLogHandler(connection_string=InstrumentationKey)
+eventHandler = AzureEventHandler(connection_string=InstrumentationKey)
+logger.addHandler(logHandler)
+logger.addHandler(eventHandler)
+
+
+
 
 app = Flask(__name__)
 
 # Requests
-middleware = # TODO: Setup flask middleware
+middleware = FlaskMiddleware(
+    app,
+    exporter=AzureExporter(connection_string=InstrumentationKey),
+    sampler=ProbabilitySampler(rate=1.0),
+)
 
 # Load configurations from environment or config file
 app.config.from_pyfile('config_file.cfg')
@@ -42,8 +69,23 @@ if ("TITLE" in os.environ and os.environ['TITLE']):
 else:
     title = app.config['TITLE']
 
-# Redis Connection
-r = redis.Redis()
+# Comment/remove the next two lines of code.
+# Redis Connection to a local server running on the same machine where the current FLask app is running. 
+# r = redis.Redis()
+# Redis configurations
+redis_server = os.environ['REDIS']
+
+# Redis Connection to another container
+try:
+    if "REDIS_PWD" in os.environ:
+        r = redis.StrictRedis(host=redis_server,
+                        port=6379,
+                        password=os.environ['REDIS_PWD'])
+    else:
+        r = redis.Redis(redis_server)
+    r.ping()
+except redis.ConnectionError:
+    exit('Failed to connect to Redis, terminating.')
 
 # Change title to host name to demo NLB
 if app.config['SHOWHOST'] == "true":
@@ -60,9 +102,14 @@ def index():
 
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
-        # TODO: use tracer object to trace cat vote
+
+        # use tracer object to trace cat vote
+        tracer.span(name="CatVotes")
+
         vote2 = r.get(button2).decode('utf-8')
-        # TODO: use tracer object to trace dog vote
+
+        # use tracer object to trace dog vote
+        tracer.span(name="DogVotes")
 
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -76,11 +123,13 @@ def index():
             r.set(button2,0)
             vote1 = r.get(button1).decode('utf-8')
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
-            # TODO: use logger object to log cat vote
+
+            logger.warning('Cats', extra=properties)
 
             vote2 = r.get(button2).decode('utf-8')
             properties = {'custom_dimensions': {'Dogs Vote': vote2}}
-            # TODO: use logger object to log dog vote
+
+            logger.warning('Dogs', extra=properties)
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
@@ -99,6 +148,6 @@ def index():
 
 if __name__ == "__main__":
     # comment line below when deploying to VMSS
-    app.run() # local
+    # app.run() # local
     # uncomment the line below before deployment to VMSS
-    # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    app.run(host='0.0.0.0', threaded=True, debug=True) # remote
