@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Variables
-resourceGroup="acdnd-c4-project"
-location="westus"
+resourceGroup="cloud-demo"
+location="eastus"
 osType="UbuntuLTS"
 vmssName="udacity-vmss"
 adminName="udacityadmin"
@@ -23,10 +23,10 @@ storageType="Standard_LRS"
 # use the existing Resource group name, such as, resourceGroup="cloud-demo-153430" 
 echo "STEP 0 - Creating resource group $resourceGroup..."
 
-az group create \
---name $resourceGroup \
---location $location \
---verbose
+# az group create \
+# --name $resourceGroup \
+# --location $location \
+# --verbose
 
 echo "Resource group created: $resourceGroup"
 
@@ -46,6 +46,7 @@ echo "STEP 2 - Creating network security group $nsgName"
 
 az network nsg create \
 --resource-group $resourceGroup \
+--location $location \
 --name $nsgName \
 --verbose
 
@@ -59,6 +60,7 @@ az vmss create \
   --name $vmssName \
   --image $osType \
   --vm-sku $vmSize \
+  --location $location \
   --nsg $nsgName \
   --subnet $subnetName \
   --vnet-name $vnetName \
