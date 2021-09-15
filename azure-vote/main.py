@@ -26,8 +26,7 @@ logger = logging.getLogger(__name__)# TODO: Setup logger
 logger.addHandler(AzureLogHandler(
     connection_string='InstrumentationKey=00000000-0000-0000-0000-000000000000')
 )
-
-
+logger.setLevel(logging.INFO)
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
     connection_string='InstrumentationKey=00000000-0000-0000-0000-000000000000')
@@ -44,7 +43,11 @@ tracer = Tracer(
 app = Flask(__name__)
 
 # Requests
-middleware = # TODO: Setup flask middleware
+middleware = FlaskMiddleware(
+    app,
+    exporter=AzureExporter(connection_string="InstrumentationKey=<your-ikey-here>"),
+    sampler=ProbabilitySampler(rate=1.0),
+)# TODO: Setup flask middleware
 
 # Load configurations from environment or config file
 app.config.from_pyfile('config_file.cfg')
@@ -106,7 +109,7 @@ def index():
             vote2 = r.get(button2).decode('utf-8')
             properties = {'custom_dimensions': {'Dogs Vote': vote2}}
             # TODO: use logger object to log dog vote
-            logger.info('Cat Just had a Vote')
+            logger.info('Dog Just had a Vote')
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
