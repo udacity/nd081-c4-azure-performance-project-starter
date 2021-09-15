@@ -24,19 +24,19 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 # Logging
 logger = logging.getLogger(__name__)# TODO: Setup logger
 logger.addHandler(AzureLogHandler(
-    connection_string='InstrumentationKey=00000000-0000-0000-0000-000000000000')
+    connection_string='InstrumentationKey=d094c243-14ea-49b9-93de-550a02c9c337;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/')
 )
 logger.setLevel(logging.INFO)
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
-    connection_string='InstrumentationKey=00000000-0000-0000-0000-000000000000')
+    connection_string='InstrumentationKey=d094c243-14ea-49b9-93de-550a02c9c337;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/')
 view_manager.register_exporter(exporter)
 # TODO: Setup exporter
 
 # Tracing
 tracer = Tracer(
     exporter=AzureExporter(
-        connection_string='InstrumentationKey=00000000-0000-0000-0000-000000000000'),
+        connection_string='InstrumentationKey=d094c243-14ea-49b9-93de-550a02c9c337;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/'),
     sampler=ProbabilitySampler(1.0),
 )# TODO: Setup tracer
 
@@ -45,7 +45,7 @@ app = Flask(__name__)
 # Requests
 middleware = FlaskMiddleware(
     app,
-    exporter=AzureExporter(connection_string="InstrumentationKey=<your-ikey-here>"),
+    exporter=AzureExporter(connection_string="InstrumentationKey=d094c243-14ea-49b9-93de-550a02c9c337;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/"),
     sampler=ProbabilitySampler(rate=1.0),
 )# TODO: Setup flask middleware
 
@@ -128,6 +128,6 @@ def index():
 
 if __name__ == "__main__":
     # comment line below when deploying to VMSS
-    app.run() # local
+    #app.run() # local
     # uncomment the line below before deployment to VMSS
-    # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    app.run(host='0.0.0.0', threaded=True, debug=True) # remote

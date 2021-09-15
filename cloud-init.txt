@@ -5,6 +5,7 @@ packages:
   - python3-pip
   - unzip
   - redis-server
+  - python3.7
 write_files:
   - owner: www-data:www-data
     path: /etc/nginx/sites-available/reverse-proxy.conf
