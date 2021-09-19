@@ -23,7 +23,7 @@ from applicationinsights import TelemetryClient
 
 # Logging
 # InstrumentationKey=631ce12b-249b-400b-b9a3-e538f0787908;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/
-ConnectionString = 'InstrumentationKey=InstrumentationKey=631ce12b-249b-400b-b9a3-e538f0787908'
+ConnectionString = 'InstrumentationKey=631ce12b-249b-400b-b9a3-e538f0787908;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/'
 # ;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'
 logger = logging.getLogger(__name__)
 logger.addHandler(
