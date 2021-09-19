@@ -22,7 +22,8 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from applicationinsights import TelemetryClient
 
 # Logging
-ConnectionString = 'InstrumentationKey=89e181cd-9e77-4b72-b273-26250d13d96f;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'
+ConnectionString = 'InstrumentationKey=InstrumentationKey=89e181cd-9e77-4b72-b273-26250d13d96f'
+# ;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/'
 logger = logging.getLogger(__name__)
 logger.addHandler(
     AzureEventHandler(
