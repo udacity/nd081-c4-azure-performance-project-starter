@@ -30,7 +30,7 @@ config_integration.trace_integrations(['logging'])
 config_integration.trace_integrations(['requests'])
 
 
-INSTRUMENTATION_KEY = 'InstrumentationKey=7b31b965-328c-446d-8b48-09cfcec326b8'
+INSTRUMENTATION_KEY = 'InstrumentationKey=b86795e7-9961-4cd7-8348-7b1461e7ad40'
 
 # Logging
 # logger = TODO: Setup logger
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 handler = AzureLogHandler(connection_string=INSTRUMENTATION_KEY)
 handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
-# Logging custom Events
+# Logging custom Events 
 logger.addHandler(AzureEventHandler(connection_string=INSTRUMENTATION_KEY))
 # Set the logging level
 logger.setLevel(logging.INFO)
@@ -46,16 +46,16 @@ logger.setLevel(logging.INFO)
 # Metrics
 # exporter = TODO: Setup exporter
 exporter = metrics_exporter.new_metrics_exporter(
-    enable_standard_metrics=True,
-    connection_string=INSTRUMENTATION_KEY)
+enable_standard_metrics=True,
+connection_string=INSTRUMENTATION_KEY)
 view_manager.register_exporter(exporter)
 
 # Tracing
 # tracer = TODO: Setup tracer
 tracer = Tracer(
-    exporter=AzureExporter(
-        connection_string=INSTRUMENTATION_KEY),
-    sampler=ProbabilitySampler(1.0),
+ exporter=AzureExporter(
+     connection_string=INSTRUMENTATION_KEY),
+ sampler=ProbabilitySampler(1.0),
 )
 
 
@@ -64,9 +64,9 @@ app = Flask(__name__)
 # Requests
 # middleware = TODO: Setup flask middleware
 middleware = FlaskMiddleware(
-    app,
-    exporter=AzureExporter(connection_string=INSTRUMENTATION_KEY),
-    sampler=ProbabilitySampler(rate=1.0)
+ app,
+ exporter=AzureExporter(connection_string=INSTRUMENTATION_KEY),
+ sampler=ProbabilitySampler(rate=1.0)
 )
 
 # Load configurations from environment or config file
@@ -89,21 +89,21 @@ else:
 
 
 # Redis Connection
-# r = redis.Redis()
+r = redis.Redis()
 
-redis_server = os.environ['REDIS']
+# redis_server = os.environ['REDIS']
 
-# Redis Connection to another container
-try:
-    if "REDIS_PWD" in os.environ:
-        r = redis.StrictRedis(host=redis_server,
-                              port=6379,
-                              password=os.environ['REDIS_PWD'])
-    else:
-        r = redis.Redis(redis_server)
-    r.ping()
-except redis.ConnectionError:
-    exit('Failed to connect to Redis, terminating.')
+#    # Redis Connection to another container
+# try:
+#   if "REDIS_PWD" in os.environ:
+#       r = redis.StrictRedis(host=redis_server,
+#                         port=6379,
+#                         password=os.environ['REDIS_PWD'])
+#   else:
+#       r = redis.Redis(redis_server)
+#   r.ping()
+# except redis.ConnectionError:
+#   exit('Failed to connect to Redis, terminating.')
 
 
 # Change title to host name to demo NLB
@@ -111,10 +111,8 @@ if app.config['SHOWHOST'] == "true":
     title = socket.gethostname()
 
 # Init Redis
-if not r.get(button1):
-    r.set(button1, 0)
-if not r.get(button2):
-    r.set(button2, 0)
+if not r.get(button1): r.set(button1,0)
+if not r.get(button2): r.set(button2,0)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -127,7 +125,7 @@ def index():
         # TODO: use tracer object to trace cat vote
         with tracer.span(name="Cats Vote") as span:
             print("Cats Vote")
-
+        
         vote2 = r.get(button2).decode('utf-8')
         # TODO: use tracer object to trace dog vote
         with tracer.span(name="Dogs Vote") as span:
@@ -139,8 +137,8 @@ def index():
     elif request.method == 'POST':
         if request.form['vote'] == 'reset':
             # Empty table and return results
-            r.set(button1, 0)
-            r.set(button2, 0)
+            r.set(button1,0)
+            r.set(button2,0)
             vote1 = r.get(button1).decode('utf-8')
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
             # TODO: use logger object to log cat vote
@@ -157,7 +155,7 @@ def index():
         else:
             # Insert vote result into DB
             vote = request.form['vote']
-            r.incr(vote, 1)
+            r.incr(vote,1)
 
             # Get current values
             vote1 = r.get(button1).decode('utf-8')
@@ -166,9 +164,8 @@ def index():
             # Return results
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
-
 if __name__ == "__main__":
     # comment line below when deploying to VMSS
-    # app.run() # local
+    app.run() # local
     # uncomment the line below before deployment to VMSS
-    app.run(host='0.0.0.0', threaded=True, debug=True)  # remote
+    # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
