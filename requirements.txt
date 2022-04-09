@@ -4,3 +4,6 @@ opencensus-ext-flask==0.7.3
 redis==3.5.3
 opencensus==0.7.13
 opencensus-ext-logging==0.1.0
+jinja2<3.1.0
+itsdangerous==2.0.1
+werkzeug==0.16.0
