@@ -33,6 +33,10 @@ handler = AzureLogHandler(connection_string='InstrumentationKey=2b48782e-a4be-42
 handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
 
+eventHandler = AzureEventHandler(connection_string='InstrumentationKey=2b48782e-a4be-42df-bf5e-08120ac51ecf')
+logger.addHandler(eventHandler)
+
+
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
 enable_standard_metrics=True,
