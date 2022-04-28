@@ -32,8 +32,8 @@ logger = logging.getLogger(__name__)
 handler = AzureLogHandler(connection_string='InstrumentationKey=2b48782e-a4be-42df-bf5e-08120ac51ecf')
 logger.addHandler(handler)
 
-eventHandler = AzureEventHandler(connection_string='InstrumentationKey=2b48782e-a4be-42df-bf5e-08120ac51ecf')
-logger.addHandler(eventHandler)
+#eventHandler = AzureEventHandler(connection_string='InstrumentationKey=2b48782e-a4be-42df-bf5e-08120ac51ecf')
+#logger.addHandler(eventHandler)
 logger.setLevel(logging.INFO)
 
 
@@ -93,13 +93,9 @@ def index():
 
     if request.method == 'GET':
 
-        # Get current values
         vote1 = r.get(button1).decode('utf-8')
-        # TODO: use tracer object to trace cat vote
         tracer.span(name=" Cat voted")
-       
         vote2 = r.get(button2).decode('utf-8')
-        # TODO: use tracer object to trace dog vote
         tracer.span(name=" Dog voted")
 
 
@@ -116,12 +112,12 @@ def index():
             vote1 = r.get(button1).decode('utf-8')
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
             # TODO: use logger object to log cat vote
-            logger.info('Cats Vote', extra=properties)
+            logger.warning('Cats', extra=properties)
 
             vote2 = r.get(button2).decode('utf-8')
             properties = {'custom_dimensions': {'Dogs Vote': vote2}}
             # TODO: use logger object to log dog vote
-            logger.info('Dogs Vote', extra=properties)
+            logger.warning('Dogs', extra=properties)
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
