@@ -28,13 +28,14 @@ view_manager = stats.view_manager
 
 # Logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+
 handler = AzureLogHandler(connection_string='InstrumentationKey=2b48782e-a4be-42df-bf5e-08120ac51ecf')
 handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
 
 eventHandler = AzureEventHandler(connection_string='InstrumentationKey=2b48782e-a4be-42df-bf5e-08120ac51ecf')
 logger.addHandler(eventHandler)
+logger.setLevel(logging.INFO)
 
 
 # Metrics
