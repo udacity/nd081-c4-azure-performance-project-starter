@@ -14,7 +14,7 @@ nsgName="$vmssName-nsg"
 vnetName="$vmssName-vnet"
 subnetName="$vnetName-subnet"
 probeName="tcpProbe"
-vmSize="Standard_B1ls"
+vmSize="Standard_B1s"
 storageType="Standard_LRS"
 
 # Create resource group. 
