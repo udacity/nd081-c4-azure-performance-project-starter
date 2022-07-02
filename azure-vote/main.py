@@ -44,7 +44,7 @@ view_manager.register_exporter(exporter)
 tracer = Tracer(
  exporter=AzureExporter(
      connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'),
- sampler=ProbabilitySampler(1.0),
+ sampler=ProbabilitySampler(rate=1.0),
 )
 
 app = Flask(__name__)
@@ -135,6 +135,6 @@ def index():
 
 if __name__ == "__main__":
     # TODO: Use the statement below when running locally
-    app.run() 
+    #app.run() 
     # TODO: Use the statement below before deployment to VMSS
-    #app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    app.run(host='0.0.0.0', threaded=True, debug=True) # remote
