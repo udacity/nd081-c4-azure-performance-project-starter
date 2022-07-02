@@ -24,7 +24,13 @@ from opencensus.trace.tracer import Tracer
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 # Logging
 logger = logging.getLogger(__name__)
-
+handler = AzureLogHandler(connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/')
+handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
+logger.addHandler(handler)
+# Logging custom Events 
+logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'))
+# Set the logging level
+logger.setLevel(logging.INFO)
 # Metrics
 stats = stats_module.stats
 view_manager = stats.view_manager
@@ -32,13 +38,13 @@ config_integration.trace_integrations(['logging'])
 config_integration.trace_integrations(['requests'])
 exporter = metrics_exporter.new_metrics_exporter(
 enable_standard_metrics=True,
-connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823')
+connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/')
 view_manager.register_exporter(exporter)
 # Tracing
 tracer = Tracer(
  exporter=AzureExporter(
-     connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823'),
- sampler=ProbabilitySampler(1.0),
+     connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'),
+ sampler=ProbabilitySampler(0.0),
 )
 
 app = Flask(__name__)
@@ -46,7 +52,7 @@ app = Flask(__name__)
 # Requests
 middleware = FlaskMiddleware(
  app,
- exporter=AzureExporter(connection_string="InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823"),
+ exporter=AzureExporter(connection_string="InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/"),
  sampler=ProbabilitySampler(rate=1.0)
 )
 
@@ -131,4 +137,4 @@ if __name__ == "__main__":
     # TODO: Use the statement below when running locally
     app.run() 
     # TODO: Use the statement below before deployment to VMSS
-    # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    #app.run(host='0.0.0.0', threaded=True, debug=True) # remote
