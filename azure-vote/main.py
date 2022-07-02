@@ -44,7 +44,7 @@ view_manager.register_exporter(exporter)
 tracer = Tracer(
  exporter=AzureExporter(
      connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'),
- sampler=ProbabilitySampler(0.0),
+ sampler=ProbabilitySampler(1.0),
 )
 
 app = Flask(__name__)
