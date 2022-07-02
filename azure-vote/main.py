@@ -22,28 +22,29 @@ from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
-# Logging
-logger = logging.getLogger(__name__)
-handler = AzureLogHandler(connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/')
-handler.setFormatter(logging.Formatter('%(TraceId)s %(SpanId)s %(message)s'))
-logger.addHandler(handler)
-# Logging custom Events 
-logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'))
-# Set the logging level
-logger.setLevel(logging.INFO)
-# Metrics
+#For metrics
 stats = stats_module.stats
 view_manager = stats.view_manager
 config_integration.trace_integrations(['logging'])
 config_integration.trace_integrations(['requests'])
+# Logging
+logger = logging.getLogger(__name__)
+handler = AzureLogHandler(connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823')
+handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
+logger.addHandler(handler)
+# Logging custom Events 
+logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823'))
+# Set the logging level
+logger.setLevel(logging.INFO)
+# Metrics
 exporter = metrics_exporter.new_metrics_exporter(
 enable_standard_metrics=True,
-connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/')
+connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823')
 view_manager.register_exporter(exporter)
 # Tracing
 tracer = Tracer(
  exporter=AzureExporter(
-     connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'),
+     connection_string='InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823'),
  sampler=ProbabilitySampler(rate=1.0),
 )
 
@@ -52,7 +53,7 @@ app = Flask(__name__)
 # Requests
 middleware = FlaskMiddleware(
  app,
- exporter=AzureExporter(connection_string="InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/"),
+ exporter=AzureExporter(connection_string="InstrumentationKey=85cf6bf8-7e4b-4931-90ea-b0b2fc265823"),
  sampler=ProbabilitySampler(rate=1.0)
 )
 
