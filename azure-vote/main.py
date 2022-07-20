@@ -11,18 +11,18 @@ from datetime import datetime
 # TODO: Import required libraries for App Insights
 
 # Logging
-logger = # TODO: Setup logger
+#logger = # TODO: Setup logger
 
 # Metrics
-exporter = # TODO: Setup exporter
+#exporter = # TODO: Setup exporter
 
 # Tracing
-tracer = # TODO: Setup tracer
+#tracer = # TODO: Setup tracer
 
 app = Flask(__name__)
 
 # Requests
-middleware = # TODO: Setup flask middleware
+#middleware = # TODO: Setup flask middleware
 
 # Load configurations from environment or config file
 app.config.from_pyfile('config_file.cfg')
@@ -99,6 +99,6 @@ def index():
 
 if __name__ == "__main__":
     # TODO: Use the statement below when running locally
-    app.run() 
+    app.run(port=2000)
     # TODO: Use the statement below before deployment to VMSS
     # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
