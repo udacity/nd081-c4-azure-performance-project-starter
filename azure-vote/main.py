@@ -10,19 +10,45 @@ from datetime import datetime
 # App Insights
 # TODO: Import required libraries for App Insights
 
-# Logging
-logger = # TODO: Setup logger
 
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+from opencensus.ext.azure import metrics_exporter
+from opencensus.stats import aggregation as aggregation_module
+from opencensus.stats import measure as measure_module
+from opencensus.stats import stats as stats_module
+from opencensus.stats import view as view_module
+from opencensus.tags import tag_map as tag_map_module
+from opencensus.ext.azure.trace_exporter import AzureExporter
+from opencensus.trace.samplers import ProbabilitySampler
+from opencensus.trace.tracer import Tracer
+from opencensus.ext.flask.flask_middleware import FlaskMiddleware
+
+from applicationinsights import TelemetryClient
+
+appInsightConnString = "InstrumentationKey=53138ad9-a6b5-4594-8872-84f3c0e9f93f;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"
+# Logging
+logger = logging.getLogger(__name__)
+handler = AzureLogHandler(connection_string = appInsightConnString)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 # Metrics
-exporter = # TODO: Setup exporter
+exporter = metrics_exporter.new_metrics_exporter(
+    enable_standard_metrics=True,
+    connection_string=appInsightConnString
+)
 
 # Tracing
-tracer = # TODO: Setup tracer
+tracer = TelemetryClient('53138ad9-a6b5-4594-8872-84f3c0e9f93f')
+
 
 app = Flask(__name__)
 
 # Requests
-middleware = # TODO: Setup flask middleware
+middleware =  FlaskMiddleware(
+    app,
+    exporter=AzureExporter(connection_string=appInsightConnString),
+    sampler=ProbabilitySampler(1.0),
+)
 
 # Load configurations from environment or config file
 app.config.from_pyfile('config_file.cfg')
@@ -61,8 +87,12 @@ def index():
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
         # TODO: use tracer object to trace cat vote
+        tracer.track_event('Cat Vote')
+        tracer.flush()
         vote2 = r.get(button2).decode('utf-8')
         # TODO: use tracer object to trace dog vote
+        tracer.track_event('Dog Vote')
+        tracer.flush()
 
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -77,11 +107,13 @@ def index():
             vote1 = r.get(button1).decode('utf-8')
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
             # TODO: use logger object to log cat vote
-
+            logger.warning("Vote cat", extra=properties)
             vote2 = r.get(button2).decode('utf-8')
-            properties = {'custom_dimensions': {'Dogs Vote': vote2}}
+            properties = {'custom_dimensions': {'Dog Vote': vote2}}
+            vote2 = r.get(button2).decode('utf-8')
+            properties = {'custom_dimensions': {'Dog Vote': vote2}}
             # TODO: use logger object to log dog vote
-
+            logger.warning("Vote dog", extra=properties)
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
         else:
