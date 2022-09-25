@@ -25,7 +25,7 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
 from applicationinsights import TelemetryClient
 
-appInsightConnString = "InstrumentationKey=53138ad9-a6b5-4594-8872-84f3c0e9f93f;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"
+appInsightConnString = "InstrumentationKey=d6b4fe94-cf90-44f7-bcac-b4074dd034fb;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"
 # Logging
 logger = logging.getLogger(__name__)
 handler = AzureLogHandler(connection_string = appInsightConnString)
@@ -38,7 +38,7 @@ exporter = metrics_exporter.new_metrics_exporter(
 )
 
 # Tracing
-tracer = TelemetryClient('53138ad9-a6b5-4594-8872-84f3c0e9f93f')
+tracer = TelemetryClient('d6b4fe94-cf90-44f7-bcac-b4074dd034fb')
 
 
 app = Flask(__name__)
