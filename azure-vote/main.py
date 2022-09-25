@@ -9,6 +9,8 @@ from datetime import datetime
 
 # App Insights
 # TODO: Import required libraries for App Insights
+
+
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from opencensus.ext.azure import metrics_exporter
 from opencensus.stats import aggregation as aggregation_module
@@ -21,30 +23,38 @@ from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
-app = Flask(__name__)
+from applicationinsights import TelemetryClient
 
+#Insights instruction key
+
+INSIGHTS_CONN_STRING = "InstrumentationKey=97b05d9b-f3f4-4038-a38d-0f6ec1f989fe;IngestionEndpoint=https://southcentralus-0.in.applicationinsights.azure.com/"
+# Logging
+logger = logging.getLogger(__name__) # TODO: Setup logger
+
+handler = AzureLogHandler(connection_string = INSIGHTS_CONN_STRING)
+
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+# Metrics
+exporter = metrics_exporter.new_metrics_exporter(
+    enable_standard_metrics=True,
+    connection_string=INSIGHTS_CONN_STRING
+)
+# Tracing
+#tracer = Tracer(
+#    exporter=AzureExporter(connection_string=INSIGHTS_CONN_STRING),
+#    sampler=ProbabilitySampler(1.0),
+#)
+
+tracer = TelemetryClient('97b05d9b-f3f4-4038-a38d-0f6ec1f989fe')
+
+app = Flask(__name__)
 # Requests
 middleware = FlaskMiddleware(
     app,
-    exporter=AzureExporter(connection_string='InstrumentationKey=1e114c16-7504-4a81-90ad-b2a151cf4332'),
-    sampler=ProbabilitySampler(rate=1.0),
-)
-# TODO: Setup flask middleware
-
-# Logging
-logger = logging.getLogger(__name__)
-logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=1e114c16-7504-4a81-90ad-b2a151cf4332'))
-
-# Metrics TODO: Setup exporter
-exporter = metrics_exporter.new_metrics_exporter(
-    enable_standard_metrics=True,
-    connection_string='InstrumentationKey=1e114c16-7504-4a81-90ad-b2a151cf4332'
-)
-# Tracing
-tracer = Tracer(
-    exporter = AzureExporter(
-        connection_string = 'InstrumentationKey=1e114c16-7504-4a81-90ad-b2a151cf4332'),
-    sampler = ProbabilitySampler(1.0),
+    exporter=AzureExporter(connection_string=INSIGHTS_CONN_STRING),
+    sampler=ProbabilitySampler(1.0),
 )
 
 # Load configurations from environment or config file
@@ -82,34 +92,34 @@ def index():
     if request.method == 'GET':
 
         # Get current values
-        # TODO: use tracer object to trace cat vote
         vote1 = r.get(button1).decode('utf-8')
-        tracer.span(name="CatsVote")
-        # TODO: use tracer object to trace dog vote        
+        # TODO: use tracer object to trace cat vote
+        tracer.track_event('Cat votes')
+        tracer.flush()
         vote2 = r.get(button2).decode('utf-8')
-        tracer.span(name="DogsVote")
-
-
+        # TODO: use tracer object to trace dog vote
+        tracer.track_event('Dog votes')
+        tracer.flush()
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
     elif request.method == 'POST':
 
         if request.form['vote'] == 'reset':
-
+            #put the current values in logger
+            vote1 = r.get(button1).decode('utf-8')
+            properties = {'custom_dimensions': {'Cats Vote': vote1}}
+            # TODO: use logger object to log cat vote
+            logger.warning("Vote cats", extra=properties)
+            vote2 = r.get(button2).decode('utf-8')
+            properties = {'custom_dimensions': {'Dogs Vote': vote2}}
+            # TODO: use logger object to log dog vote
+            logger.warning("Vote dogs", extra=properties)
             # Empty table and return results
             r.set(button1,0)
             r.set(button2,0)
             vote1 = r.get(button1).decode('utf-8')
-            properties = {'custom_dimensions': {'Cats Vote': vote1}}
-            logger.warning('Cats', extra=properties)
-            # TODO: use logger object to log cat vote
-
             vote2 = r.get(button2).decode('utf-8')
-            properties = {'custom_dimensions': {'Dogs Vote': vote2}}
-            logger.warning('Dogs', extra=properties)
-            # TODO: use logger object to log dog vote
-
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
         else:
@@ -127,6 +137,6 @@ def index():
 
 if __name__ == "__main__":
     # comment line below when deploying to VMSS
-    #app.run() # local
+    # app.run() # local
     # uncomment the line below before deployment to VMSS
     app.run(host='0.0.0.0', threaded=True, debug=True) # remote
