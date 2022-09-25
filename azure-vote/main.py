@@ -25,16 +25,16 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
 from applicationinsights import TelemetryClient
 
-appInsightConnString = "InstrumentationKey=d6b4fe94-cf90-44f7-bcac-b4074dd034fb;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"
+INSIGHTS_CONN_STRING = "InstrumentationKey=d6b4fe94-cf90-44f7-bcac-b4074dd034fb;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"
 # Logging
 logger = logging.getLogger(__name__)
-handler = AzureLogHandler(connection_string = appInsightConnString)
+handler = AzureLogHandler(connection_string = INSIGHTS_CONN_STRING)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
     enable_standard_metrics=True,
-    connection_string=appInsightConnString
+    connection_string=INSIGHTS_CONN_STRING
 )
 
 # Tracing
@@ -46,7 +46,7 @@ app = Flask(__name__)
 # Requests
 middleware =  FlaskMiddleware(
     app,
-    exporter=AzureExporter(connection_string=appInsightConnString),
+    exporter=AzureExporter(connection_string=INSIGHTS_CONN_STRING),
     sampler=ProbabilitySampler(1.0),
 )
 
