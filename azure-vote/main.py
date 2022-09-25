@@ -9,8 +9,6 @@ from datetime import datetime
 
 # App Insights
 # TODO: Import required libraries for App Insights
-
-
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from opencensus.ext.azure import metrics_exporter
 from opencensus.stats import aggregation as aggregation_module
@@ -22,9 +20,6 @@ from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
-
-from applicationinsights import TelemetryClient
-
 
 app = Flask(__name__)
 
