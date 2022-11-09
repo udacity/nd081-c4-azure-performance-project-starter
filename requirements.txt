@@ -6,6 +6,7 @@ Flask
 google-api-core
 google-auth
 googleapis-common-protos
+cryptography
 idna
 itsdangerous
 Jinja2
