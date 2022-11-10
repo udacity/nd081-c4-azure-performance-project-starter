@@ -30,7 +30,7 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 # For metrics
 stats = stats_module.stats
 view_manager = stats.view_manager
-instrumentalKey = 'InstrumentationKey=59218228-b883-455b-90ce-a56605d8a035'
+instrumentalKey = 'InstrumentationKey=8f9636ca-6ead-4b89-b813-237242247e61'
 
 # Logging
 config_integration.trace_integrations(['logging'])
