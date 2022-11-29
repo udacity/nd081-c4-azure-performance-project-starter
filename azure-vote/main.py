@@ -33,24 +33,24 @@ config_integration.trace_integrations(['logging'])
 config_integration.trace_integrations(['requests'])
 # Standard Logging
 logger = logging.getLogger(__name__)
-handler = AzureLogHandler(connection_string='InstrumentationKey=[your-guid]')
+handler = AzureLogHandler(connection_string='InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/')
 handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
 # Logging custom Events 
-logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f'))
+logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'))
 # Set the logging level
 logger.setLevel(logging.INFO)
 
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
 enable_standard_metrics=True,
-connection_string='InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f')
+connection_string='InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/')
 view_manager.register_exporter(exporter)
 
 # Tracing
 tracer = Tracer(
  exporter=AzureExporter(
-     connection_string='InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f'),
+     connection_string='InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'),
  sampler=ProbabilitySampler(1.0),
 )
 
@@ -59,7 +59,7 @@ app = Flask(__name__)
 # Requests
 middleware = FlaskMiddleware(
  app,
- exporter=AzureExporter(connection_string="InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f"),
+ exporter=AzureExporter(connection_string="InstrumentationKey=8d03315e-2d53-4149-a0fd-94fe0a85b99f;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/"),
  sampler=ProbabilitySampler(rate=1.0)
 )
 
@@ -80,9 +80,21 @@ if ("TITLE" in os.environ and os.environ['TITLE']):
     title = os.environ['TITLE']
 else:
     title = app.config['TITLE']
+ # Redis configurations
+redis_server = os.environ['REDIS']
 
-# Redis Connection
-r = redis.Redis()
+   # Redis Connection to another container
+try:
+    if "REDIS_PWD" in os.environ:
+        r = redis.StrictRedis(host=redis_server,
+                           port=6379,
+                           password=os.environ['REDIS_PWD'])
+    else:
+       r = redis.Redis(redis_server)
+    r.ping()
+except redis.ConnectionError:
+      exit('Failed to connect to Redis, terminating.')
+
 
 # Change title to host name to demo NLB
 if app.config['SHOWHOST'] == "true":
@@ -147,4 +159,4 @@ if __name__ == "__main__":
     # TODO: Use the statement below when running locally
     app.run() 
     # TODO: Use the statement below before deployment to VMSS
-    # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    #app.run(host='0.0.0.0', threaded=True, debug=True) # remote
