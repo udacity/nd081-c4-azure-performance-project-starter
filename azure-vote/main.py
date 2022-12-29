@@ -25,7 +25,7 @@ logger.setLevel(logging.INFO)
 logger.addHandler(AzureLogHandler(
     connection_string=f'InstrumentationKey={instrumentation_key}')
 )
-
+ 
 # Metrics
 # TODO: Setup exporter
 # NEED TO CONFIGURE APPLICATIONINSIGHTS_CONNECTION_STRING
