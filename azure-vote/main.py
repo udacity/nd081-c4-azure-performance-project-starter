@@ -11,18 +11,33 @@ from datetime import datetime
 # TODO: Import required libraries for App Insights
 
 # Logging
-logger = # TODO: Setup logger
+# logger = # TODO: Setup logger
+logger = logging.getLogger(__name__)
+logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=5b774115-d725-4daa-b00f-d61274b55056'))
 
 # Metrics
-exporter = # TODO: Setup exporter
-
+# exporter = # TODO: Setup exporter
+exporter = metrics_exporter.new_metrics_exporter(
+    enable_standard_metrics=True,
+    connection_string='InstrumentationKey=5b774115-d725-4daa-b00f-d61274b55056'
+)
 # Tracing
-tracer = # TODO: Setup tracer
+#tracer = # TODO: Setup tracer
+tracer = Tracer(
+    exporter = AzureExporter(
+        connection_string = 'InstrumentationKey=5b774115-d725-4daa-b00f-d61274b55056'),
+    sampler = ProbabilitySampler(1.0),
+)
 
 app = Flask(__name__)
 
 # Requests
-middleware = # TODO: Setup flask middleware
+# middleware = # TODO: Setup flask middleware
+middleware = FlaskMiddleware(
+    app,
+    exporter=AzureExporter(connection_string='InstrumentationKey=5b774115-d725-4daa-b00f-d61274b55056'),
+    sampler=ProbabilitySampler(rate=1.0),
+)
 
 # Load configurations from environment or config file
 app.config.from_pyfile('config_file.cfg')
@@ -61,8 +76,10 @@ def index():
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
         # TODO: use tracer object to trace cat vote
+        tracer.span(name="CatsVote")
         vote2 = r.get(button2).decode('utf-8')
         # TODO: use tracer object to trace dog vote
+        tracer.span(name="DogsVote")
 
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -76,10 +93,12 @@ def index():
             r.set(button2,0)
             vote1 = r.get(button1).decode('utf-8')
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
+            logger.warning('Cats', extra=properties)
             # TODO: use logger object to log cat vote
 
             vote2 = r.get(button2).decode('utf-8')
             properties = {'custom_dimensions': {'Dogs Vote': vote2}}
+            logger.warning('Dogs', extra=properties)
             # TODO: use logger object to log dog vote
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -99,6 +118,9 @@ def index():
 
 if __name__ == "__main__":
     # TODO: Use the statement below when running locally
-    app.run() 
+    # app.run() 
     # TODO: Use the statement below before deployment to VMSS
-    # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+
+
+# 5b774115-d725-4daa-b00f-d61274b55056
