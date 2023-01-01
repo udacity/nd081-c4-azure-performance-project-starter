@@ -22,10 +22,10 @@ from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
 
 # Logging
-# logger = # TODO: Setup logger
 logger = logging.getLogger(__name__)
-logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=5b774115-d725-4daa-b00f-d61274b55056'))
-
+handler = AzureLogHandler(connection_string='InstrumentationKey=5b774115-d725-4daa-b00f-d61274b55056')
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 # Metrics
 # exporter = # TODO: Setup exporter
 exporter = metrics_exporter.new_metrics_exporter(
@@ -104,12 +104,12 @@ def index():
             r.set(button2,0)
             vote1 = r.get(button1).decode('utf-8')
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
-            logger.warning('Cats', extra=properties)
+            logger.info('Cats', extra=properties)
             # TODO: use logger object to log cat vote
 
             vote2 = r.get(button2).decode('utf-8')
             properties = {'custom_dimensions': {'Dogs Vote': vote2}}
-            logger.warning('Dogs', extra=properties)
+            logger.info('Dogs', extra=properties)
             # TODO: use logger object to log dog vote
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -120,6 +120,12 @@ def index():
             vote = request.form['vote']
             r.incr(vote,1)
 
+            vote0 = r.get(vote).decode('utf-8')
+            
+            # log current vote
+            properties = {'custom_dimensions': {'{}_vote'.format(vote): vote0}}
+            logger.info('new_{}_vote'.format(vote), extra=properties)
+            
             # Get current values
             vote1 = r.get(button1).decode('utf-8')
             vote2 = r.get(button2).decode('utf-8')
