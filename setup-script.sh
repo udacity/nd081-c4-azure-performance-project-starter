@@ -17,6 +17,16 @@ probeName="tcpprobe004"
 vmSize="Standard_B1s"
 storageType="Standard_LRS"
 
+# az vmss list-instance-connection-info --resource-group c04-last-project --name udacity-vmss
+# "instance 1": "20.253.199.231:50001",
+#   "instance 2": "20.253.199.231:50002"
+
+#    ssh -p 50001 udacityadmin@20.253.199.231
+
+#    ssh -p 50002 udacityadmin@[public-ip]
+
+#    git clone https://github.com/noor-gh-sa/nd081-c4-azure-performance-project-starter.git
+
 # Create resource group. 
 # This command will not work for the Cloud Lab users. 
 # Cloud Lab users can comment this command and 
