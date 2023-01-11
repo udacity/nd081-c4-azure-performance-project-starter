@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-resourceGroup="acdnd-c4-project"
+resourceGroup="c04-last-project"
 location="westus"
 osType="UbuntuLTS"
 vmssName="udacity-vmss"
@@ -13,7 +13,7 @@ lbRule="$lbName-network-rule"
 nsgName="$vmssName-nsg"
 vnetName="$vmssName-vnet"
 subnetName="$vnetName-subnet"
-probeName="tcpProbe"
+probeName="tcpprobe004"
 vmSize="Standard_B1s"
 storageType="Standard_LRS"
 
@@ -126,6 +126,7 @@ az network nsg rule create \
 --name Port_80 \
 --destination-port-ranges 80 \
 --direction Inbound \
+--protocol '*' \
 --priority 100 \
 --verbose
 
@@ -140,6 +141,7 @@ az network nsg rule create \
 --name Port_22 \
 --destination-port-ranges 22 \
 --direction Inbound \
+--protocol '*' \
 --priority 110 \
 --verbose
 
