@@ -1,8 +1,13 @@
 #!/bin/bash
 
 # Variables
-resourceGroup="acdnd-c4-project"
+resourceGroup="c04-last-project"
 clusterName="udacity-cluster"
+
+# az acr create --resource-group c04-last-project --name myacr202106 --sku Basic
+# az aks update -n udacity-cluster -g c04-last-project --attach-acr p4acr
+#    az acr show --name p4acr --query loginServer --output table
+
 
 # Install aks cli
 echo "Installing AKS CLI"

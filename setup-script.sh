@@ -18,10 +18,11 @@ vmSize="Standard_B1s"
 storageType="Standard_LRS"
 
 # az vmss list-instance-connection-info --resource-group c04-last-project --name udacity-vmss
-# "instance 1": "20.253.199.231:50001",
-#   "instance 2": "20.253.199.231:50002"
+  # "instance 1": "23.100.44.59:50001",
+  # "instance 2": "23.100.44.59:50002"
 
-#    ssh -p 50001 udacityadmin@20.253.199.231
+
+#    ssh -p 50001 udacityadmin@23.100.44.59
 
 #    ssh -p 50002 udacityadmin@[public-ip]
 
