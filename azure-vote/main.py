@@ -28,6 +28,7 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 # logger = # TODO: Setup logger
 logger = logging.getLogger(__name__)
 logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=50802e8a-2f3b-47d3-9403-a6aa60edf5e6;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/'))
+logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=50802e8a-2f3b-47d3-9403-a6aa60edf5e6;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/'))
 
 # # Metrics
 stats = stats_module.stats
@@ -36,7 +37,8 @@ view_manager = stats.view_manager
 exporter = metrics_exporter.new_metrics_exporter(
 enable_standard_metrics=True,
 connection_string='InstrumentationKey=50802e8a-2f3b-47d3-9403-a6aa60edf5e6;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/')
-view_manager.register_exporter(exporter)
+
+#view_manager.register_exporter(exporter)
 
 # # Tracing
 #tracer = # TODO: Setup tracer
@@ -94,12 +96,11 @@ def index():
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
         # TODO: use tracer object to trace cat vote
-        with tracer.span(name="Cats Vote") as span:
-         print("Cats Vote")
+        tracer.span(name=vote1)
+        
         vote2 = r.get(button2).decode('utf-8')
         # TODO: use tracer object to trace dog vote
-        with tracer.span(name="Dogs Vote") as span:
-         print("Dogs Vote")
+        tracer.span(name=vote2) 
 
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -127,12 +128,15 @@ def index():
 
             # Insert vote result into DB
             vote = request.form['vote']
-            r.incr(vote,1)
-            print(vote)
+            with tracer.span(name=vote) as span:
+                r.incr(vote,1)
+                logger.warning(vote)
+            
 
             # Get current values
             vote1 = r.get(button1).decode('utf-8')
             vote2 = r.get(button2).decode('utf-8')
+            
 
             # Return results
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
